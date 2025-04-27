@@ -1,164 +1,131 @@
-from fastapi import FastAPI, HTTPException, Depends, Header
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from typing import Dict, Optional, Literal
-from pydantic import BaseModel
-import httpx
+
+from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+from typing import List, Optional
+import uvicorn
 import os
-from datetime import datetime
-import uuid
-from dotenv import load_dotenv
-from supabase import create_client, Client
+from policy_recommendation_model import generate_policy_recommendation
 
-# Load environment variables
-load_dotenv()
-TYPEFORM_API_KEY = os.getenv("TYPEFORM_API_KEY")
-TYPEFORM_FORM_ID = os.getenv("TYPEFORM_FORM_ID")
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+# Initialize FastAPI app
+app = FastAPI(title="Policy Recommendation API", 
+              description="API for generating personalized policy recommendations")
 
-# Initialize Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+# Mount static files and templates for the web interface
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-app = FastAPI()
+# Define input model (Pydantic model for request validation)
+class UserProfile(BaseModel):
+    age: int = Field(..., description="User's age in years")
+    location: str = Field(..., description="User's location in India")
+    income: float = Field(..., description="Monthly income in INR")
+    family_size: int = Field(..., description="Number of family members")
+    past_claims: int = Field(..., description="Number of past insurance claims")
+    health_conditions: List[str] = Field([], description="List of health conditions")
+    preferences: List[str] = Field([], description="List of policy preferences")
+    max_monthly_emi_budget: str = Field(..., description="Maximum monthly budget for insurance (e.g., 'INR 10000')")
+    policy_type: str = Field(..., description="Type of policy (health, life, auto, etc.)")
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:8080"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Define output models
+class Policy(BaseModel):
+    name: str
+    provider: str
+    monthly_emi: float
+    description: str
+    link: str
 
+class PolicyRecommendation(BaseModel):
+    policies: List[Policy]
+    explanation: Optional[str] = None
 
-async def get_current_user(authorization: str = Header(None)):
-    """Validate JWT and return user data"""
-    if not authorization:
-        raise HTTPException(status_code=401, detail="No authorization token")
-    
+# Home page endpoint - serves the HTML form
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    """Home page with a form to submit user profile data"""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+# API endpoint for JSON requests
+@app.post("/recommend/", response_model=PolicyRecommendation)
+async def recommend_policy(user_profile: UserProfile):
+    """Generate personalized policy recommendations based on user profile"""
     try:
-        token = authorization.split(" ")[1]
-        response = await supabase.auth.get_user(token)
-        user = response.user
-        return {"id": user.id, "email": user.email}
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-async def fetch_form_fields() -> Dict[str, str]:
-    """Fetch Typeform fields and return id->question mapping"""
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"https://api.typeform.com/forms/{TYPEFORM_FORM_ID}",
-            headers={"Authorization": f"Bearer {TYPEFORM_API_KEY}"}
-        )
+        # Convert Pydantic model to dictionary
+        user_data = user_profile.dict()
         
-        if response.status_code != 200:
-            raise HTTPException(status_code=502, detail="Error fetching form fields")
-            
-        form = response.json()
-        return {
-            field["id"]: field["title"] 
-            for field in form["fields"]
+        # Call the recommendation function
+        recommendation = generate_policy_recommendation(user_data)
+        
+        # Return the recommendation
+        return recommendation
+    except Exception as e:
+        raise HTTPException(status_code=500, 
+                           detail=f"Error generating recommendation: {str(e)}")
+
+# Form submission endpoint
+@app.post("/recommend-form/")
+async def recommend_policy_form(
+    request: Request,
+    age: int = Form(...),
+    location: str = Form(...),
+    income: float = Form(...),
+    family_size: int = Form(...),
+    past_claims: int = Form(...),
+    health_conditions: str = Form(""),
+    preferences: str = Form(""),
+    max_monthly_emi_budget: str = Form(...),
+    policy_type: str = Form(...)
+):
+    """Handle form submission for policy recommendation"""
+    try:
+        # Parse health conditions and preferences as comma-separated lists
+        health_list = [h.strip() for h in health_conditions.split(",") if h.strip()]
+        preferences_list = [p.strip() for p in preferences.split(",") if p.strip()]
+        
+        # Create user profile dictionary
+        user_data = {
+            "age": age,
+            "location": location,
+            "income": income,
+            "family_size": family_size,
+            "past_claims": past_claims,
+            "health_conditions": health_list,
+            "preferences": preferences_list,
+            "max_monthly_emi_budget": max_monthly_emi_budget,
+            "policy_type": policy_type
         }
-
-async def fetch_latest_response(user_email: str) -> dict:
-    """Fetch latest Typeform response for user"""
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(
-                f"https://api.typeform.com/forms/{TYPEFORM_FORM_ID}/responses",
-                params={
-                    "query": user_email,
-                    "sort": "-submitted_at",
-                    "page_size": 1
-                },
-                headers={
-                    "Authorization": f"Bearer {TYPEFORM_API_KEY}",
-                    "Accept": "application/json"
-                }
-            )
-            
-            # Print debug information
-            print(f"Typeform API Response Status: {response.status_code}")
-            print(f"Response Body: {response.text}")
-            
-            if response.status_code == 404:
-                raise HTTPException(
-                    status_code=404, 
-                    detail="Form not found. Please check TYPEFORM_FORM_ID."
-                )
-                
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=502,
-                    detail=f"Typeform API error: {response.text}"
-                )
-                
-            data = response.json()
-            
-            if not data.get("items"):
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"No form submission found for email: {user_email}"
-                )
-                
-            return data["items"][0]
-            
-        except httpx.RequestError as e:
-            print(f"Request Error: {str(e)}")
-            raise HTTPException(
-                status_code=502,
-                detail=f"Error connecting to Typeform: {str(e)}"
-            )
-
-
-def build_qa_dict(submission: dict, field_map: Dict[str, str]) -> Dict[str, str]:
-    """Convert Typeform submission into Q&A dictionary"""
-    qa_dict = {}
-    for answer in submission.get("answers", []):
-        question = field_map.get(answer["field"]["id"])
-        if question:
-            qa_dict[question] = answer.get("text", answer.get("choice", {}).get("label", ""))
-    return qa_dict
-
-
-@app.post("/api/agents/{feature}")
-async def run_agent(
-    feature: Literal["recommendation", "pricing", "upsell"],
-    user = Depends(get_current_user)
-) -> Dict:
-    """Run AI agent for specific feature"""
-    try:
-        # Fetch form data
-        field_map = await fetch_form_fields()
-        submission = await fetch_latest_response(user["email"])
-        user_profile = build_qa_dict(submission, field_map)
         
-        # Run appropriate agent (using existing client in agent files)
-        if feature == "recommendation":
-            from models.policy_recommendation_model import generate_policy_recommendation
-            result = await generate_policy_recommendation(user_profile)
-        elif feature == "pricing":
-            from models.pricing_model import generate_dynamic_price
-            result = await generate_dynamic_price(user_profile)
-        else:  # upsell
-            from models.upselling_model import generate_upselling_recommendation
-            result = await generate_upselling_recommendation(user_profile)
-            
-        # Store in Supabase
-        await supabase.table("agent_results").insert({
-            "id": str(uuid.uuid4()),
-            "user_id": user["id"],
-            "feature": feature,
-            "profile": user_profile,
-            "result": result,
-            "created_at": datetime.utcnow().isoformat()
-        })
+        # Get recommendations
+        recommendation = generate_policy_recommendation(user_data)
         
-        return result
+        # Ensure we have the expected structure
+        if "policies" not in recommendation:
+            recommendation = {
+                "policies": [],
+                "explanation": recommendation.get("explanation", "Invalid response format")
+            }
         
-    except HTTPException:
-        raise
+        # Return the results page
+        return templates.TemplateResponse(
+            "results.html", 
+            {
+                "request": request,
+                "recommendation": recommendation,
+                "user_data": user_data
+            }
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "error": str(e)
+            }
+        )
+
+# Run the application
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8001))
+    uvicorn.run("main:app", host="0.0.1.1", port=5000, reload=True)
