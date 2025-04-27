@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Policy Recommendation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <h1>Policy Recommendation Form</h1>
+    <p>Fill in your details below to get personalized policy recommendations:</p>
+    
+    <form action="/recommend-form/" method="post">
+        <div class="form-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Location in India:</label>
+            <input type="text" id="location" name="location" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="income">Monthly Income (INR):</label>
+            <input type="number" id="income" name="income" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="family_size">Family Size:</label>
+            <input type="number" id="family_size" name="family_size" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="past_claims">Number of Past Claims:</label>
+            <input type="number" id="past_claims" name="past_claims" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="health_conditions">Health Conditions (comma-separated):</label>
+            <input type="text" id="health_conditions" name="health_conditions" placeholder="e.g., diabetes, hypertension">
+        </div>
+        
+        <div class="form-group">
+            <label for="preferences">Policy Preferences (comma-separated):</label>
+            <input type="text" id="preferences" name="preferences" placeholder="e.g., health, life, auto">
+        </div>
+        
+        <div class="form-group">
+            <label for="max_monthly_emi_budget">Maximum Monthly Budget (e.g., INR 10000):</label>
+            <input type="text" id="max_monthly_emi_budget" name="max_monthly_emi_budget" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="policy_type">Policy Type:</label>
+            <select id="policy_type" name="policy_type" required>
+                <option value="">Select a policy type</option>
+                <option value="health">Health Insurance</option>
+                <option value="life">Life Insurance</option>
+                <option value="auto">Auto Insurance</option>
+                <option value="home">Home Insurance</option>
+                <option value="travel">Travel Insurance</option>
+            </select>
+        </div>
+        
+        <button type="submit">Get Recommendations</button>
+    </form>
+    
+    <p>Or use our <a href="/docs">API</a> for programmatic access.</p>
+</body>
+</html>
