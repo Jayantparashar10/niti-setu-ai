@@ -123,6 +123,57 @@ async def recommend_policy_form(
                 "error": str(e)
             }
         )
+class ChatRequest(BaseModel):
+    policy_name: str
+    provider: str
+    question: str
+
+@app.post("/chat-about-policy")
+async def chat_about_policy(request: ChatRequest):
+    """Handle chatbot interactions for policy questions"""
+    try:
+        # Get the policy details and user question
+        policy_name = request.policy_name
+        provider = request.provider
+        user_question = request.question
+        
+        # Create a prompt for the AI
+        prompt = f"""
+        I want you to act as an insurance policy advisor for the policy: {policy_name} from {provider}.
+        
+        Answer the following customer question about this policy:
+        "{user_question}"
+        
+        Provide a helpful, accurate, and concise response. If you don't know specific details about
+        this policy, provide general information about similar policies but make it clear that
+        these are general guidelines.
+        
+        Your response should be friendly, informative, and encourage further questions if needed.
+        """
+        
+        # Use your existing OpenAI client
+        from policy_recommendation_model import client
+        
+        # Call the AI model for a response
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a helpful insurance advisor chatbot."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500,
+            temperature=0.7,
+            model="sonar-pro"  # Use the same model as your recommendation engine
+        )
+        
+        # Extract and return the response
+        bot_response = response.choices[0].message.content
+        
+        return {"response": bot_response}
+    
+    except Exception as e:
+        print(f"Error in chatbot: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating response: {str(e)}")
+
 
 # Run the application
 if __name__ == "__main__":
