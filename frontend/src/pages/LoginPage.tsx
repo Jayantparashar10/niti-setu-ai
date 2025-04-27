@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, User, Key } from 'lucide-react';
@@ -10,7 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const LoginPage = () => {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +50,18 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Google login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-sbi-light-gray">
       <Navbar />
@@ -62,7 +73,11 @@ const LoginPage = () => {
             <p className="text-sbi-gray mt-2">Sign in to access your account</p>
           </div>
           
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-50 transition-colors focus-ring mb-6">
+          <button 
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-50 transition-colors focus-ring mb-6"
+          >
             <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2">
               <path
                 fill="#4285F4"
@@ -81,7 +96,7 @@ const LoginPage = () => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Sign in with Google
+            {isLoading ? 'Signing in...' : 'Sign in with Google'}
           </button>
           
           <div className="flex items-center gap-4 my-6">
