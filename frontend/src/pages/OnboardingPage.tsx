@@ -38,7 +38,7 @@ const OnboardingPage = () => {
       <Widget
         id="YOUR_TYPEFORM_ID"
         style={{ width: '100%', height: '100vh' }}
-        hidden={{ userId: user?.id }}
+        hidden={{ userId: user?.id, email: user?.email }}
         onSubmit={handleOnboardingComplete}
       />
     </div>

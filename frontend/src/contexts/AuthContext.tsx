@@ -31,11 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(currentSession?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          // Check if user is already onboarded
           const { user } = currentSession;
+          // Check if user has completed onboarding
           if (user?.user_metadata?.onboarded) {
             navigate('/feature-selection');
           } else {
+            // First time sign in - redirect to onboarding
             navigate('/onboarding');
           }
         } else if (event === 'SIGNED_OUT') {
@@ -60,12 +61,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         options: {
           data: {
-            full_name: fullName,
+            full_name: fullName,  // This will be stored in raw_user_meta_data
           },
         },
       });
 
       if (error) throw error;
+      
+      // Profile will be created automatically by the trigger
       toast({
         title: "Account created successfully!",
         description: "Please check your email to verify your account.",
@@ -121,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
