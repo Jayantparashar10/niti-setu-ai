@@ -18,7 +18,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="text-sbi-blue font-bold text-2xl">InsuraWise</div>
+            <div className="text-sbi-blue font-bold text-2xl">Niti-Setu</div>
           </Link>
           
           <button 

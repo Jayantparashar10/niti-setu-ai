@@ -78,7 +78,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-6 border-t border-white/20 flex flex-col md:flex-row justify-between items-center">
           <div className="text-white/60 text-sm">
-            © {new Date().getFullYear()} InsuraWise. All rights reserved.
+            © {new Date().getFullYear()} Niti-Setu. All rights reserved.
           </div>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <Link to="/privacy" className="text-white/60 text-sm hover:text-white transition-colors">
