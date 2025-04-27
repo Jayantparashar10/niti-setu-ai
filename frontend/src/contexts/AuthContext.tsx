@@ -25,12 +25,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          navigate('/dashboard');
+          // Check if user is already onboarded
+          const { user } = currentSession;
+          if (user?.user_metadata?.onboarded) {
+            navigate('/feature-selection');
+          } else {
+            navigate('/onboarding');
+          }
         } else if (event === 'SIGNED_OUT') {
           navigate('/login');
         }

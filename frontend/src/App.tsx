@@ -1,11 +1,11 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import CreateAccountPage from "./pages/CreateAccountPage";
@@ -26,12 +26,20 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/create-account" element={<CreateAccountPage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/select-feature" element={<FeatureSelectionPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
+              
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute>
+                <Outlet />
+              </ProtectedRoute>}>
+                <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/select-feature" element={<FeatureSelectionPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+              </Route>
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

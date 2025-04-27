@@ -1,14 +1,15 @@
-
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Mail, Key } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useNavigate } from 'react-router-dom';
 
 const CreateAccountPage = () => {
+  const navigate = useNavigate();
   const { signUp } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
@@ -85,6 +86,7 @@ const CreateAccountPage = () => {
       setIsLoading(true);
       try {
         await signUp(formData.email, formData.password, formData.name);
+        // Remove navigation from here - AuthContext will handle it
       } catch (error) {
         console.error('Signup error:', error);
       } finally {
