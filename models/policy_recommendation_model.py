@@ -5,24 +5,12 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-
-endpoint = os.getenv("OPENAI_ENDPOINT")
-deployment = "gpt-4o-mini"  # or your specified deployment name
-subscription_key = os.getenv("OPENAI_KEY")
-api_version = "2024-12-01-preview"
-
 per_api = os.getenv("perplixity_api_key")
 if per_api is None:
     raise ValueError("perplixity_api_key not found in environment variables.")
 
-client1 = OpenAI(api_key=per_api, base_url="https://api.perplexity.ai")
+client = OpenAI(api_key=per_api, base_url="https://api.perplexity.ai")
 
-
-client = AzureOpenAI(
-    api_version=api_version,
-    azure_endpoint=endpoint,
-    api_key=subscription_key,
-)
 
 def generate_policy_recommendation(user_profile):
     """
@@ -44,7 +32,7 @@ def generate_policy_recommendation(user_profile):
     User Profile: {json.dumps(user_profile)}
     """
 
-    response = client1.chat.completions.create(
+    response = client.chat.completions.create(
         messages=[
             {
     "role": "system",
