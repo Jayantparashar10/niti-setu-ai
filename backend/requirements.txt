@@ -1,10 +1,5 @@
-fastapi
-pydantic
-uvicorn
-sqlalchemy
-databases
-asyncpg
-python-multipart
-python-magic
-python-magic-bin
-python-magic
+fastapi[standard]
+uvicorn[standard]
+openai
+python-dotenv
+
