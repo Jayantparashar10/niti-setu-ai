@@ -27,6 +27,7 @@ class UserProfile(BaseModel):
     occupation: str = Field(..., description="Occupation of the user")
     education: str = Field(..., description="Education level of the user")
     other_coverage: str = Field(..., description="Health coverage type (individual/family)")
+    other_policy: str = Field(..., description="Other policy types (SBI Health, SBI Life, etc.)")
     smoking_status: str = Field(..., description="Smoking status (smoker/non-smoker)")
     drinking_status: str = Field(..., description="Drinking status (drinker/non-drinker)")
     family_size: int = Field(..., description="Number of family members")
@@ -83,6 +84,7 @@ async def recommend_policy_form(request: Request,
     occupation: str = Form(...),
     education: str = Form(...),
     other_coverage: str = Form(...),
+    other_policy: str = Form(default="None"),
     smoking_status: str = Form(...),
     drinking_status: str = Form(...),  # Added this required field
     family_size: int = Form(...),
@@ -109,6 +111,7 @@ async def recommend_policy_form(request: Request,
             "occupation": occupation,
             "education": education,
             "other_coverage": other_coverage,
+            "other_policy": other_policy,
             "smoking_status": smoking_status,
             "family_size": family_size,
             "past_claims": past_claims,
@@ -171,8 +174,10 @@ async def chat_about_policy(request: ChatRequest):
         Provide a helpful, accurate, and concise response. If you don't know specific details about
         this policy, provide general information about similar policies but make it clear that
         these are general guidelines.
-        
+        Don't add any related annotations like [][].
+        If a user allready have a policy encurouge it to upgrade it. 
         Your response should be friendly, informative, and encourage further questions if needed.
+        You response should be in normal text format, not in JSON or any other format.
         """
         
         # Use your existing OpenAI client
@@ -184,7 +189,7 @@ async def chat_about_policy(request: ChatRequest):
                 {"role": "system", "content": "You are a helpful insurance advisor chatbot."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=500,
+            max_tokens=1024,
             temperature=0.8,
             model="sonar-pro"  # Use the same model as your recommendation engine
         )
