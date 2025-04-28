@@ -90,6 +90,12 @@
         </div>
         
         <div class="form-group">
+            <label for="other_policy">Other Policy:</label>
+            <input type="text" id="other_policy" name="other_policy" required>
+        </div>
+        
+
+        <div class="form-group">
             <label for="smoking_status">Smoking Status:</label>
             <select id="smoking_status" name="smoking_status" required>
                 <option value="">Select Smoking Status</option>
@@ -119,7 +125,7 @@
         
         <div class="form-group">
             <label for="preferences">Policy Preferences (comma-separated):</label>
-            <input type="text" id="preferences" name="preferences" placeholder="e.g., health, life, auto">
+            <input type="text" id="preferences" name="preferences" placeholder="e.g. cashless, no waiting period">
         </div>
         
         <div class="form-group">
@@ -128,14 +134,16 @@
         </div>
         
         <div class="form-group">
-            <label for="policy_type">Policy Type:</label>
+            <label for="policy_type">Policy Plan:</label>
             <select id="policy_type" name="policy_type" required>
-                <option value="">Select a policy type</option>
-                <option value="health">Health Insurance</option>
-                <option value="life">Life Insurance</option>
-                <option value="auto">Auto Insurance</option>
-                <option value="home">Home Insurance</option>
-                <option value="travel">Travel Insurance</option>
+                <option value="">Select a policy plan</option>
+                <option value="life">Life Insurance Plans</option>
+                <option value="life">Term Insurance Plans</option>
+                <option value="life">Unit Linked Insurance Plans </option>
+                <option value="life">Pension Plans</option>
+                <option value="life">Annuity Plans</option>
+                <option value="health">Child Plans</option>
+                <option value="health">Group Insurance Plans</option>
             </select>
         </div>
         
