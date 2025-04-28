@@ -22,7 +22,15 @@ class UserProfile(BaseModel):
     age: int = Field(..., description="User's age in years")
     location: str = Field(..., description="User's location in India")
     income: float = Field(..., description="Monthly income in INR")
+    marital_status: str = Field(..., description="Marital status (single/married)")
+    dependents: int = Field(..., description="Number of dependents")
+    occupation: str = Field(..., description="Occupation of the user")
+    education: str = Field(..., description="Education level of the user")
+    other_coverage: str = Field(..., description="Health coverage type (individual/family)")
+    smoking_status: str = Field(..., description="Smoking status (smoker/non-smoker)")
+    drinking_status: str = Field(..., description="Drinking status (drinker/non-drinker)")
     family_size: int = Field(..., description="Number of family members")
+    gender: str = Field(..., description="Male")
     past_claims: int = Field(..., description="Number of past insurance claims")
     health_conditions: List[str] = Field([], description="List of health conditions")
     preferences: List[str] = Field([], description="List of policy preferences")
@@ -66,12 +74,19 @@ async def recommend_policy(user_profile: UserProfile):
 
 # Form submission endpoint
 @app.post("/recommend-form/")
-async def recommend_policy_form(
-    request: Request,
+async def recommend_policy_form(request: Request,
     age: int = Form(...),
     location: str = Form(...),
     income: float = Form(...),
+    marital_status: str = Form(...),
+    dependents: int = Form(...),
+    occupation: str = Form(...),
+    education: str = Form(...),
+    other_coverage: str = Form(...),
+    smoking_status: str = Form(...),
+    drinking_status: str = Form(...),  # Added this required field
     family_size: int = Form(...),
+    gender: str = Form(...),
     past_claims: int = Form(...),
     health_conditions: str = Form(""),
     preferences: str = Form(""),
@@ -89,9 +104,17 @@ async def recommend_policy_form(
             "age": age,
             "location": location,
             "income": income,
+            "marital_status": marital_status,
+            "dependents": dependents,
+            "occupation": occupation,
+            "education": education,
+            "other_coverage": other_coverage,
+            "smoking_status": smoking_status,
             "family_size": family_size,
             "past_claims": past_claims,
+            "drinking_status": drinking_status,
             "health_conditions": health_list,
+            "gender": gender,
             "preferences": preferences_list,
             "max_monthly_emi_budget": max_monthly_emi_budget,
             "policy_type": policy_type
@@ -162,7 +185,7 @@ async def chat_about_policy(request: ChatRequest):
                 {"role": "user", "content": prompt}
             ],
             max_tokens=500,
-            temperature=0.7,
+            temperature=0.8,
             model="sonar-pro"  # Use the same model as your recommendation engine
         )
         

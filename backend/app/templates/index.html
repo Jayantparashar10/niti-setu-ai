@@ -33,8 +33,78 @@
         </div>
         
         <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="marital_status">Marital Status:</label>
+            <select id="marital_status" name="marital_status" required>
+                <option value="">Select Marital Status</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
             <label for="family_size">Family Size:</label>
             <input type="number" id="family_size" name="family_size" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="dependents">Number of Dependents:</label>
+            <input type="number" id="dependents" name="dependents" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="occupation">Occupation:</label>
+            <input type="text" id="occupation" name="occupation" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="education">Education Level:</label>
+            <select id="education" name="education" required>
+                <option value="">Select Education Level</option>
+                <option value="high_school">High School</option>
+                <option value="bachelor">Bachelor's Degree</option>
+                <option value="master">Master's Degree</option>
+                <option value="phd">PhD</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="other_coverage">Other Insurance Coverage:</label>
+            <select id="other_coverage" name="other_coverage" required>
+                <option value="">Select Coverage Status</option>
+                <option value="individual">Individual</option>
+                <option value="family">Family</option>
+                <option value="none">None</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="smoking_status">Smoking Status:</label>
+            <select id="smoking_status" name="smoking_status" required>
+                <option value="">Select Smoking Status</option>
+                <option value="smoker">Smoker</option>
+                <option value="non_smoker">Non-Smoker</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="drinking_status">Drinking Status:</label>
+            <select id="drinking_status" name="drinking_status" required>
+                <option value="">Select Drinking Status</option>
+                <option value="drinker">Drinker</option>
+                <option value="non_drinker">Non-Drinker</option>
+            </select>
         </div>
         
         <div class="form-group">
@@ -71,7 +141,5 @@
         
         <button type="submit">Get Recommendations</button>
     </form>
-    
-    <p>Or use our <a href="/docs">API</a> for programmatic access.</p>
 </body>
 </html>

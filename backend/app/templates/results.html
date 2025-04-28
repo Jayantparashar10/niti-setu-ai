@@ -153,6 +153,9 @@
         <p><strong>Income:</strong> INR {{ user_data.income }}</p>
         <p><strong>Policy Type:</strong> {{ user_data.policy_type }}</p>
         <p><strong>Budget:</strong> {{ user_data.max_monthly_emi_budget }}</p>
+        <p><strong>Gender</strong> {{ user_data.gender}}</p>
+        <p><strong>Marital Status</strong> {{ user_data.marital_status }}</p>
+        
     </div>
     
     {% if recommendation and recommendation.policies and recommendation.policies|length > 0 %}
