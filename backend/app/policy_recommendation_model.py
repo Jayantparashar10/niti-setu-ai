@@ -5,7 +5,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-per_api = os.getenv("perplixity_api_key")
+per_api =  os.environ.get("perplexity_api_key")
 if per_api is None:
     raise ValueError("perplixity_api_key not found in environment variables.")
 

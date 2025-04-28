@@ -66,7 +66,7 @@ async def recommend_policy(user_profile: UserProfile):
         
         # Call the recommendation function
         recommendation = generate_policy_recommendation(user_data)
-        
+        print(recommendation)
         # Return the recommendation
         return recommendation
     except Exception as e:
@@ -206,5 +206,5 @@ async def chat_about_policy(request: ChatRequest):
 
 # Run the application
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8001))
-    uvicorn.run("main:app", host="0.0.1.1", port=5000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
